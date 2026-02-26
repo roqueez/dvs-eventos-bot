@@ -1,0 +1,37 @@
+package com.dvs.eventos.service;
+
+import com.dvs.eventos.model.Event;
+import com.dvs.eventos.model.EventStatus;
+import com.dvs.eventos.model.Participant;
+
+public class SelectionService {
+
+    private static final int MAX_PARTICIPANTS = 15;
+
+    public static boolean tryAddParticipant(String userId, String username) {
+
+        Event event = EventService.getCurrentEvent();
+        if (event == null) return false;
+        if (event.getStatus() == EventStatus.FECHADO) return false;
+
+        if (event.getParticipants().size() >= MAX_PARTICIPANTS) {
+            event.setStatus(EventStatus.FECHADO);
+            return false;
+        }
+
+        boolean alreadyIn = event.getParticipants()
+                .stream()
+                .anyMatch(p -> p.getUserId().equals(userId));
+
+        if (alreadyIn) return false;
+
+        event.getParticipants().add(new Participant(userId, username));
+
+        if (event.getParticipants().size() >= MAX_PARTICIPANTS) {
+            event.setStatus(EventStatus.FECHADO);
+            return true; // atingiu limite
+        }
+
+        return false;
+    }
+}
