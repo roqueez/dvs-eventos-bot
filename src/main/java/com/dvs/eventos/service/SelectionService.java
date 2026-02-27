@@ -6,7 +6,7 @@ import com.dvs.eventos.model.Participant;
 
 public class SelectionService {
 
-    private static final int MAX_PARTICIPANTS = 15;
+    private static final int MAX_PARTICIPANTS = 30;
 
     public static boolean tryAddParticipant(String userId, String username) {
 
@@ -29,9 +29,23 @@ public class SelectionService {
 
         if (event.getParticipants().size() >= MAX_PARTICIPANTS) {
             event.setStatus(EventStatus.FECHADO);
-            return true; // atingiu limite
+            return true;
         }
 
         return false;
+    }
+
+    public static void removeParticipant(String userId) {
+
+        Event event = EventService.getCurrentEvent();
+        if (event == null) return;
+
+        event.getParticipants().removeIf(p -> p.getUserId().equals(userId));
+
+        if (event.getStatus() == EventStatus.FECHADO &&
+                event.getParticipants().size() < MAX_PARTICIPANTS) {
+
+            event.setStatus(EventStatus.ABERTO);
+        }
     }
 }
